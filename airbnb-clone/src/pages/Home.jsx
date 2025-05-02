@@ -10,18 +10,16 @@ export default function Home() {
 
   useEffect(() => {
     const fetchListings = async () => {
-      if (searchParams) {
-        setLoading(true);
-        try {
-          const response = await axios.get('http://localhost:8000/api/listings/', {
-            params: searchParams
-          });
-          setListings(response.data);
-        } catch (error) {
-          console.error('Error fetching listings:', error);
-        } finally {
-          setLoading(false);
-        }
+      setLoading(true);
+      try {
+        const url = `${import.meta.env.VITE_API_URL}/listings/`;
+        const params = searchParams || {};
+        const response = await axios.get(url, { params });
+        setListings(response.data);
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -34,26 +32,42 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">Airbnb Clone</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-rose-500 to-amber-500 py-20 text-white text-center">
+        <h1 className="text-4xl font-bold mb-4">Find Your Perfect Stay</h1>
+        <p className="text-xl">Discover unique homes and experiences</p>
+      </div>
+
+      {/* Main Content - Properly Centered */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Search Bar - Centered */}
+        <div className="flex justify-center mb-12">
+          <div className="w-full max-w-2xl">
             <Search onSearch={handleSearch} />
           </div>
-          
-          <div className="md:col-span-3">
-            {loading ? (
-              <div className="text-center py-8">Loading listings...</div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {listings.map(listing => (
-                  <ListingCard key={listing.id} listing={listing} />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
+
+        {/* Listings Grid - Centered */}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center">
+            {listings.map(listing => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && listings.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">
+              No listings found. Try different search criteria.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
